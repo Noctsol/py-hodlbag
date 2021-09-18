@@ -20,7 +20,9 @@ Python repository for my project involving gathering data for crypto and running
     - Top 10,50, 200 to total market cap
 - Migrate code to Azure 
     - Migrate to Azure Cosmos DB
-    - .Net core
+        - Actually, maybe not. Too expensive probably. Digitalocean might be an option
+    - .Net core(only if we do this for real since python is easy to use)
+ 
 - Build super robust alerting system
     - I literally have no clue how this will NOT be computationally expensive to run
     - As far as I know, nothing like this exists on the market
