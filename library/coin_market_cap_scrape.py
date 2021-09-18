@@ -82,11 +82,15 @@ class CoinMarketCapScrape:
                     # Generating info
                     snapshot_datetime = datetime.datetime(year_num, month_num, day_num)     # Actual datetime 
                     str_datetime = snapshot_datetime.strftime("%Y-%m-%d")                   # Str datetime
-                    link_to_snapshot = f"{self.base_url}"
+                    link_to_snapshot = f"{self.base_url}{day_href}"
 
-                    # Adding all info back to dictionary
+                    # Storing all info inside dict
                     snapshot_dict = {"date": str_datetime, "href": link_to_snapshot}
 
+                    # Adding stored info to dict
+                    available_snapshots[snapshot_datetime] = snapshot_dict
+
+        return available_snapshots
 
 
     ########### HISTORICAL FRONTPAGE ELEMENT/DIV NAVIGATION ###########
