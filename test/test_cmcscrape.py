@@ -22,3 +22,4 @@ def test_frontpage_scrape():
 data = scrape.get_all_date_snapshots_data()
 
 print(hlp.listdict_to_2dlist(data))
+5

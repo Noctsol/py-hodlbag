@@ -27,7 +27,20 @@ api_request_json =  {'status': {'timestamp': '2021-09-25T00:56:30.082Z', 'error_
 
 data = api_request_json["data"]
 
+container = []
 
 for crypto in data:
     lst = [crypto["id"], crypto["name"], crypto["quote"]["USD"]["price"]]
     print(lst)
+
+# anything older than 1 yeart - ignore
+
+# END CODE
+# ALERT USER/APPLICATION
+
+# "no eligible data to process younger than a year - closing process"
+
+
+
+
+#### must be in the thousands for this type of categor
