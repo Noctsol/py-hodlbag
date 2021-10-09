@@ -30,7 +30,7 @@ def test_frontpage_scrape():
         print(dt_key, info)
 
 
-data = scrape.get_all_date_snapshots_data(n_dates_to_pull=5)
+data = scrape.get_all_date_snapshots_data(n_dates_to_pull=2)
 
 for i in data:
     print(i)

@@ -16,20 +16,16 @@ Summary:
 # From PyPi
 from bs4 import BeautifulSoup       # For reading through all our html
 from selenium import webdriver      # Controls browser
-from selenium.webdriver.chrome.options import Options      # Modify Selenium config
 import requests                     # Got sending the request to get the html from a webpage
 
 # Default Installed
 from pathlib import Path
 
-import random                       # Randomizing numbers
 import re                           # Regex for doing wildcard searches using beautiful soup
 import calendar                     # Used for converting months to numbers
 import datetime                     # Used to deal with datetime
 import os                           # Windows systems control
 import time                         # For sleeps
-import sys                          # For exiting script if need be
-
 
 
 class CoinMarketCapScrape:
@@ -40,7 +36,11 @@ class CoinMarketCapScrape:
 
         # Selenium configs
         self.browser_path = brave_or_chrome_path if brave_or_chrome_path is not None else "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
+
+        # Pathing
         self.root_dir = Path(os.path.dirname(os.path.abspath(__file__))).parent
+
+
 
     ############################################################################### PUBLIC ###############################################################################
 
@@ -101,98 +101,44 @@ class CoinMarketCapScrape:
         return available_snapshots
 
     # Will get a snapshot data for 1 particular date
-    def get_date_snapshot_data(self, url):
-        ''' Returns snapshot data for a given data from CMC '''
-
-    # TODO: Finish this function then use it in get all dates snapshot
-    # def get_date_snapshots_data_range(self, from_date, to_date):
-    #     from_datetime = datetime.datetime.strptime(from_date, "%Y-%m-%d")
-    #     to_datetime = datetime.datetime.strptime(to_date, "%Y-%m-%d")
-    #     available_snapshot_dates = self.get_available_historical_snapshots()
-    #     for date_key in available_snapshot_dates:
-    #         # Ignore any dates outside
-    #         if from_datetime <= date_key or date_key =>
-    #     pass
-
-    # Pulls ALL historical data from the historical page - added a optional parameter to pull n amount of dates only
-    def get_all_date_snapshots_data(self, n_dates_to_pull=0):
-        ''' Returns a list of dictionaries containing all available snapshot data on CMC
-
-            Params:
-            - sleep - The amount of time we wait by default in between each request. Don't get IP banned bro.
-            - n_dates_to_pull - Test feature to only pull n amount of dates to test the function
-         '''
-
+    def get_date_snapshot_data(self, date_string):
+        ''' Returns snapshot data for a given data from CMC
+        Use a 2021-01-10 format for the date. Will not pull any data if the URL doesn't exist.
+        '''
         # Will hold all results
         historical_data = []
 
-        # Getting all available snapshot urls
-        available_snapshot_dates = self.get_available_historical_snapshots()
+        # Format date and use it form URL
+        yymmdd_string = date_string.replace("-","")
+        snapshot_url = f"{self.historical_url}/{yymmdd_string}/"
 
-
-        # Starting Selenium Session
+        # Create Browser Session or use own that was passed over
         browser = self.create_browser_session()
 
-        count = 0
+        table_soup = self.get_table_soup_via_selenium(browser, snapshot_url)
 
-        # Cycling through all snapshots amd getting data
-        for date_key in available_snapshot_dates:
-            # if date_key.year in [2013, 2014, 2015, 2016, 2017]:
-            #     continue
+        row_soups = self.get_row_soups(table_soup)
 
-            info = available_snapshot_dates[date_key]
-            url = info["href"]
-            datestamp = info["date"]
+        # Extracting data from each row
+        for row_sp in row_soups:
+            row_dict = {
+                "date": date_string,
+                "rank": self.extract_rank_text(row_sp),
+                "name": self.extract_name_text(row_sp),
+                "symbol": self.extract_symbol_text(row_sp),
+                "market_cap": self.extract_market_cap_text(row_sp),
+                "price": self.extract_price_text(row_sp),
+                "circulating_supply": self.extract_circulating_supply_text(row_sp),
+                "1h": self.extract_1h_text(row_sp),
+                "24h": self.extract_24h_text(row_sp),
+                "7d": self.extract_7d_text(row_sp)
+                }
 
-            print(f"Pulling historical data for {datestamp}")
-
-
-            table_soup = self.get_table_soup_via_selenium(browser, url)
-
-            # table_soup = self.get_table_soup(url)
-
-
-            # header_soups = self.get_header_col_soups(table_soup)
-            # headers = [i.text for i in header_soups]
-            # print(headers)
-
-            row_soups = self.get_row_soups(table_soup)
-
-            for row_sp in row_soups:
-                # print(row_sp)
-                try:
-                    row_dict = {
-                        "date": datestamp,
-                        "rank": self.extract_rank_text(row_sp),
-                        "name": self.extract_name_text(row_sp),
-                        "symbol": self.extract_symbol_text(row_sp),
-                        "market_cap": self.extract_market_cap_text(row_sp),
-                        "price": self.extract_price_text(row_sp),
-                        "circulating_supply": self.extract_circulating_supply_text(row_sp),
-                        "1h": self.extract_1h_text(row_sp),
-                        "24h": self.extract_24h_text(row_sp),
-                        "7d": self.extract_7d_text(row_sp)
-                        }
-
-
-                except Exception:
-                    print(row_sp)
-                    sys.exit()
-
-                historical_data.append(row_dict)
-
-            count+=1
-
-            if count == n_dates_to_pull:
-                break
-
-            time.sleep(random.randint(3,9))
+            historical_data.append(row_dict)
 
         browser.quit()
 
-
         return historical_data
-
 
 
     ########### HISTORICAL FRONTPAGE ELEMENT/DIV NAVIGATION ###########
@@ -265,10 +211,9 @@ class CoinMarketCapScrape:
             # Calculate new scroll height and compare with last scroll height
             new_height = browser_session.execute_script("return document.body.scrollHeight")
 
-            print(new_height, last_height)
-
             if new_height == last_height:
                 break
+
             last_height = new_height
 
         return True
@@ -292,6 +237,11 @@ class CoinMarketCapScrape:
         page_source =  browser_session.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
         table_soup = soup.find_all("div", {"class": "cmc-table__table-wrapper-outer"})
+
+        # Means that the page didnt load any data
+        if len(table_soup) < 3:
+            return None
+
         return table_soup[2]
 
     # Gets the div representing the table holding all the data for a specific date
@@ -305,14 +255,13 @@ class CoinMarketCapScrape:
         print("\n"*5)
 
         # Getting div holding all the rows for each asset/crypto
-        # TODO: Not sure how to handle limitations with beautiful soup not being exact - find doesn't work because it automatically does a wild card
-        table_soup = soup.find_all("div", {"class": "cmc-table__table-wrapper-outer"})
-
+        # table_soup = soup.find_all("div", {"class": "cmc-table__table-wrapper-outer"})
+        table_soup = soup.find_all(lambda tag: tag.name == 'div' and tag.get('class') == ["cmc-table__table-wrapper-outer"])
         # for i in table_soup:
         #     print("\n"*5)
         #     print(i)
 
-        return table_soup[2]
+        return table_soup[0]
 
     # Gets the divs representing the header columns
     def get_header_col_soups(self, table_soup):
