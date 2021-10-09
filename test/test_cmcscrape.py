@@ -1,9 +1,19 @@
-import sys 
+"""
+Owner: Kevin B
+Contributors: N/A
+Date Created: 20211008
+
+Summary:
+    Testing script to CMC Scrtaping Libary
+
+"""
+
+import sys
 sys.path.append('.')
-
-
 from library import coin_market_cap_scrape as cmcs
 from library import helper
+
+
 
 
 scrape = cmcs.CoinMarketCapScrape()
@@ -11,6 +21,7 @@ hlp = helper.Helper()
 
 
 def test_frontpage_scrape():
+    ''' quick test'''
     available_snapshots = scrape.get_available_historical_snapshots()
 
 
@@ -21,5 +32,7 @@ def test_frontpage_scrape():
 
 data = scrape.get_all_date_snapshots_data()
 
-print(hlp.listdict_to_2dlist(data))
-5
+for i in data:
+    print(i)
+
+# print(hlp.listdict_to_2dlist(data))

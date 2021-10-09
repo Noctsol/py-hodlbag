@@ -6,12 +6,17 @@ Date Created: 20210917
 Summary:
     Script used to pull all historical data of the top 200 crypto market caps. Will pull everything. Ideally should only be used a couple times or when everything is lost.
 """
+
+
+
+# Preinstalled packages
+from os.path import expanduser
+
 # Custom Libraries
 from library import coin_market_cap_scrape as cmcs
 from library import helper
 
-#
-from os.path import expanduser
+
 
 # Initializing classes
 scrape = cmcs.CoinMarketCapScrape()

@@ -43,8 +43,6 @@ class CoinMarketCapScrape:
         self.data_table_class_name = "cmc-table__table-wrapper-outer"
         self.data_headers_obj = "thead"
         self.data_headers_col_class_name = "cmc-table__cell cmc-table__header"  # *
-        self.data_row_obj = "tbody"
-        self.data_row_class_name = "cmc-table-row"
         self.data_row_col_class_name = "cmc-table__cell cmc-table__cell"        # *
 
         self.data_rank_class_name = "__rank"                                    # *
@@ -136,7 +134,7 @@ class CoinMarketCapScrape:
         # Getting all available snapshot urls
         available_snapshot_dates = self.get_available_historical_snapshots()
 
-        n = 0
+        n = 5
 
         # Cycling through all snapshots amd getting data
         for date_key in available_snapshot_dates:
@@ -153,7 +151,9 @@ class CoinMarketCapScrape:
             # print(headers)
 
             row_soups = self.get_row_soups(table_soup)
+
             for row_sp in row_soups:
+                # print(row_sp)
                 try:
                     row_dict = {
                         "date": datestamp,
@@ -166,14 +166,15 @@ class CoinMarketCapScrape:
                         "1h": self.extract_1h_text(row_sp),
                         "24h": self.extract_24h_text(row_sp),
                         "7d": self.extract_7d_text(row_sp)
-                    }
+                        }
+
 
                 except Exception:
-                    print(row_dict)
+                    print(row_sp)
                     sys.exit()
 
                 historical_data.append(row_dict)
-            
+  
             n+=1
 
             if n == n_dates_to_pull:
@@ -233,23 +234,39 @@ class CoinMarketCapScrape:
         html_content = self.get_date_snapshot_html(cmc_date_url)
         soup = BeautifulSoup(html_content, 'html.parser')
 
+        print("\n"*5)
+        print(soup.encode('utf-8', 'ignore'))
+        print("\n"*5)
+
         # Getting div holding all the rows for each asset/crypto
         # TODO: Not sure how to handle limitations with beautiful soup not being exact - find doesn't work because it automatically does a wild card
-        table_soup = soup.find_all("div", {"class": self.data_table_class_name})[2]
-        return table_soup
-        
+        table_soup = soup.find_all("div", {"class": self.data_table_class_name})
+
+        # for i in table_soup:
+        #     print("\n"*5)
+        #     print(i)
+
+        return table_soup[2]
+
     # Gets the divs representing the header columns
     def get_header_col_soups(self, table_soup):
         header_soup = table_soup.find(self.data_headers_obj)
         header_col_soups = header_soup.find_all("th", {"class": re.compile(self.data_headers_col_class_name)})
         return header_col_soups
-    
+
     # Gets the divs representing the data rows
     def get_row_soups(self, table_soup):
-        body_soup = table_soup.find(self.data_row_obj)
-        row_soups =  body_soup.find_all("tr", {"class": self.data_row_class_name})
+        ''' Gets all the divs that hold all the row representing each asset
+            I had to use a lambda function because bs4 does wildcard searches naturally and this 
+            ended up getting incorrect results. '''
+
+        # Getting the starting point of the rows within the table
+        body_soup = table_soup.find("tbody")
+
+        # Getting all the row - read doc string for details 
+        row_soups =  body_soup.find_all(lambda tag: tag.name == 'tr' and tag.get('class') == ["cmc-table-row"])
         return row_soups
-    
+
 
     ########### HISTORICAL FRONTPAGE EXTRACTION ###########
     # Functions that pull text information out of a given div #
