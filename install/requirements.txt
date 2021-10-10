@@ -2,3 +2,5 @@ requests
 bs4
 selenium
 python-dotenv
+pymongo
+dnspython

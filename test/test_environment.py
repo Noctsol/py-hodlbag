@@ -1,10 +1,10 @@
-import sys 
+import sys
 sys.path.append('.')
 
 from library import environment
 
 
-env = environment.Environment("./secret/environment.env")
+env = environment.Environment("./secrets.env")
 
 env.load()
 
