@@ -36,8 +36,8 @@ aggrate_dir = f"{download_dir}aggregate"
 stats_dir = f"{download_dir}stats"
 
 FILE_NAME_PREFIX = "historical_snapshot_"
-FILE_NAME_AGG = f"aggregate_historical_snapshot.csv"
-FILE_NAME_TOTAL_CAP = f"crypto_total_market_cap.csv"
+FILE_NAME_AGG = "aggregate_historical_snapshot.csv"
+FILE_NAME_TOTAL_CAP = "crypto_total_market_cap.csv"
 
 # Making directories
 hlp.mkdir(download_dir)
@@ -108,7 +108,7 @@ def aggregate_data_from_files():
 
     return all_historical_data
 
-def generate_total_market_cap_file(combined_data):
+def generate_total_market_cap_file(all_combined_data):
     ''' Generates a csv totaling the total market cap '''
 
     headers = ["date", "Top 200 Market Valuation"]
@@ -124,7 +124,7 @@ def generate_total_market_cap_file(combined_data):
             grouped_by_date[row[0]].append(row)
 
     # Sum data
-    for date_key in grouped_by_date:
+    for d_key in grouped_by_date:
         rows = grouped_by_date[date_key]
 
         temp_lst = [date_key]
