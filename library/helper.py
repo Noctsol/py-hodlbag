@@ -11,9 +11,12 @@ Summary:
 
 
 # Default Python Packages
+from uuid import uuid4
+
 import os                           # Deals with operating system functionality
 import csv                          # For reading/writing csv files
 import datetime                     # For dealing with datetime objs
+
 
 
 
@@ -123,3 +126,15 @@ class Helper():
             os.makedirs(folder_path)
 
         return True
+
+    # G enera
+    def make_uuid(self):
+        '''Generates a universally unique identifier (UUID) string
+        (Example: 'f50ec0b7-f960-400d-91f0-c42a6d44e3d0')
+
+        Parameters
+        ----------
+        None
+
+        '''
+        return str(uuid4())

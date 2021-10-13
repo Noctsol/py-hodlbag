@@ -13,26 +13,29 @@ import random
 import time
 sys.path.append('.')
 
-from library import environment as ev
+from datetime import datetime, timezone
+
+from library import environment as ev, helper
 
 ################### CONFIG ###################
 
 env = ev.Environment("./secrets.env")
 env.load()
+hlp = helper.Helper()
 
-AMOUNT = 10000
-BATCHES = 500
+AMOUNT = 100000
+BATCHES = 5
 TOTAL = int(AMOUNT * BATCHES)
-COLLECTION_NAME = "random_data"
+COLLECTION_NAME = "random_data_three"
 
 ################### functions ###################
 
 def rand_sentence():
     ''' Generating random setences to use '''
-    nouns = ["We", "I", "The tiger", "Malphie", "He" , "She", "Brother", "Dad", "African Warlord", "Child Solja", "Your Mom"]
-    verbs_pre = ["was", "is", "are", "were", "isn't", "wasn't"]
+    nouns = ["We", "I", "The tiger", "Malphie", "He" , "She", "Brother", "Dad", "African Warlord", "Child Solja", "Your Mom", "Muh dog"]
+    verbs_pre = ["was", "is", "are", "were", "isn't", "wasn't", "can't think of", "wants to be", "doesn't want to be"]
     verbs = ["pooping", "eating", "slapping", "touching", "sleeping", "jumping", "killing", "loving", "squatting"]
-    adjectives = ["aggressively", "loudly", "progressively", "happily", "slowly but surely", "frustratingly", "stupidly", "freakishly"]
+    adjectives = ["aggressively", "loudly", "progressively", "happily", "slowly but surely", "frustratingly", "stupidly", "freakishly", "peacefully"]
 
     noun = random.choice(nouns)
     prevb = random.choice(verbs_pre)
@@ -48,8 +51,17 @@ def rand_float(num1, num2, rounding=2):
 def chunks(a_list, chunk_n):
     """Yield successive n-sized chunks from lst. Stackoverflow"""
     for item in range(0, len(a_list), chunk_n):
-        yield lst[item: item + chunk_n]
+        yield a_list[item: item + chunk_n]
 
+def rand_datetime():
+    year = random.randint(1900, 2021)
+    month = random.randint(1, 12)
+    day = random.randint(1, 28)   # Almost wanted to write something to deal with this but ignored it
+    hour = random.randint(1, 23)
+    minute = random.randint(1, 59)
+    second = random.randint(1, 59)
+
+    return datetime(year, month, day, hour, minute, second, 505, tzinfo=timezone.utc)
 ################### bODY ###################
 
 # Start up client
@@ -66,19 +78,24 @@ else:
     rando = dbch[COLLECTION_NAME]
 
 # Generating json documents to upload
+print("Generating Randomized Data")
 jsons_lst = []
 for i in range(TOTAL):
     json_dict = {
+        "guid": hlp.make_uuid(),
+        "inserted_datetime": datetime.utcnow(),
         "quantity": random.randint(1,1000000),
         "price": rand_float(20, 3000000),
-        "description": rand_sentence()
+        "description": rand_sentence(),
+        "random_datetime": rand_datetime()
     }
 
     jsons_lst.append(json_dict)
 
 # Splitting list of json documents into chunks
-batched_json = list(chunks(jsons_lst, AMOUNT))
+batched_json = chunks(jsons_lst, AMOUNT)
 
+print("Inserting Data")
 
 # Tracking time
 start_batch = time.time()
