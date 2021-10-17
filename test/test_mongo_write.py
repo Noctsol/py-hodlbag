@@ -23,8 +23,8 @@ env = ev.Environment("./secrets.env")
 env.load()
 hlp = helper.Helper()
 
-AMOUNT = 100000
-BATCHES = 5
+AMOUNT = 10000
+BATCHES = 100
 TOTAL = int(AMOUNT * BATCHES)
 COLLECTION_NAME = "random_data_three"
 
