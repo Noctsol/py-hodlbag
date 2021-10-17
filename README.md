@@ -1,4 +1,4 @@
-# crypto-hodl-py
+# Summary
 Python repository for my analytics project involving gathering data for crypto and running scenarios. As of right now, I want to set this up so that any developer can jsut download this and run this.
 
 
