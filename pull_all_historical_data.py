@@ -111,12 +111,12 @@ def aggregate_data_from_files():
 def generate_total_market_cap_file(all_combined_data):
     ''' Generates a csv totaling the total market cap '''
 
-    headers = ["date", "Top 200 Market Valuation"]
+    headers = ["date", "Cryto200"]
     market_cap_data = [headers]
 
     # Grouping data
     grouped_by_date = {}
-    for row in combined_data[1:]:
+    for row in all_combined_data[1:]:
         if row[0] not in grouped_by_date:
             grouped_by_date[row[0]] = []
             grouped_by_date[row[0]].append(row)
@@ -125,9 +125,9 @@ def generate_total_market_cap_file(all_combined_data):
 
     # Sum data
     for d_key in grouped_by_date:
-        rows = grouped_by_date[date_key]
+        rows = grouped_by_date[d_key]
 
-        temp_lst = [date_key]
+        temp_lst = [d_key]
         date_market_cap_total = 0
 
         for row in rows:

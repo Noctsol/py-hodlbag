@@ -1,6 +1,7 @@
-requests
-bs4
-selenium
-python-dotenv
-pymongo
-dnspython
+requests>=2.26.0
+beautifulsoup4>=4.10.0
+selenium==4.0.0
+python-dotenv>=0.19.1
+pymongo>=3.12.1
+dnspython>=2.1.0
+psycopg2>=2.9.1
