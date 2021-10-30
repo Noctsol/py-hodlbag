@@ -1,5 +1,5 @@
 """
-Owner: Kevin B
+Owner: Noctsol
 Contributors: N/A
 Date Created: 20210917
 
@@ -18,7 +18,7 @@ import pathlib
 
 # Custom Libraries
 from library import coin_market_cap_scrape as cmcs
-from library import helper
+import helpu as hlp
 
 
 
@@ -26,10 +26,10 @@ from library import helper
 
 # Initializing classes
 scrape = cmcs.CoinMarketCapScrape()
-hlp = helper.Helper()
+# hlp = helper.Helper()
 
 # Pathing
-stamp = hlp.datetime_timestamp()
+stamp = hlp.timestamp()
 home = expanduser("~")
 download_dir = f"{home}/Documents/CryptoAnalytics/historical/"
 aggrate_dir = f"{download_dir}aggregate"
@@ -138,8 +138,7 @@ def generate_total_market_cap_file(all_combined_data):
         market_cap_data.append(temp_lst)
 
 
-    hlp.write_to_csv(os.path.join(stats_dir,FILE_NAME_TOTAL_CAP), market_cap_data)
-
+    hlp.write_csv(os.path.join(stats_dir,FILE_NAME_TOTAL_CAP), market_cap_data)
 
 
 
@@ -153,8 +152,6 @@ available_snapshot_dates_on_cmc = scrape.get_available_historical_snapshots()
 
 # Extracting dates from files already downloaded
 downloaded_dates = get_downloaded_dates()
-
-print(downloaded_dates)
 
 # Webscraping data from coin market cap
 for date_key in available_snapshot_dates_on_cmc:
@@ -178,7 +175,7 @@ for date_key in available_snapshot_dates_on_cmc:
     print(f"\t#OF COINS: {len(data_lstdct)}")
 
     # Transforming to nested list
-    data_lsts = hlp.listdict_to_2dlist(data_lstdct)
+    data_lsts = hlp.to_listlist(data_lstdct)
 
     # Removing dashes from datestamp for filename
     file_datestamp = datestamp.replace("-","")
@@ -186,7 +183,7 @@ for date_key in available_snapshot_dates_on_cmc:
     file_out_path = f"{download_dir}{file_name}"
 
     # Write to csv
-    hlp.write_to_csv(file_out_path, data_lsts)
+    hlp.write_csv(file_out_path, data_lsts)
 
     # End script early on DEBUG mode
     if DEBUG_MODE_ON is True:
@@ -198,7 +195,7 @@ for date_key in available_snapshot_dates_on_cmc:
 combined_data = aggregate_data_from_files()
 
 # Write to csv
-hlp.write_to_csv(os.path.join(aggrate_dir, FILE_NAME_AGG),combined_data)
+hlp.write_csv(os.path.join(aggrate_dir, FILE_NAME_AGG),combined_data)
 
 # Generate Stats
 generate_total_market_cap_file(combined_data)
