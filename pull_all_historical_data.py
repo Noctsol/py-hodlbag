@@ -38,6 +38,7 @@ stats_dir = f"{download_dir}stats"
 FILE_NAME_PREFIX = "historical_snapshot_"
 FILE_NAME_AGG = "aggregate_historical_snapshot.csv"
 FILE_NAME_TOTAL_CAP = "crypto_total_market_cap.csv"
+FILE_NAME_UNIQUE = "unique_cryptos.csv"
 
 # Making directories
 hlp.mkdir(download_dir)
@@ -137,11 +138,29 @@ def generate_total_market_cap_file(all_combined_data):
         temp_lst.append(date_market_cap_total)
         market_cap_data.append(temp_lst)
 
-
     hlp.write_csv(os.path.join(stats_dir,FILE_NAME_TOTAL_CAP), market_cap_data)
 
+def generate_unique_crypto_file(all_combined_data):
+    ''' Generates a csv with all the unique symbol,name pairs '''
 
+    dict_set = {}
 
+    for row in all_combined_data[1:]:
+        name = row[2].lower()
+        symbol = row[3].lower()
+        pair = (name, symbol)
+
+        if pair not in dict_set:
+            dict_set[pair] = 1
+        else:
+            continue
+
+    unique_pairs = [list(i) for i in dict_set]
+
+    headers = ["name", "symbol"]
+    output = [headers] + unique_pairs
+
+    hlp.write_csv(os.path.join(stats_dir,FILE_NAME_UNIQUE), output)
 
 
 
@@ -199,5 +218,6 @@ hlp.write_csv(os.path.join(aggrate_dir, FILE_NAME_AGG),combined_data)
 
 # Generate Stats
 generate_total_market_cap_file(combined_data)
+generate_unique_crypto_file(combined_data)
 
 print("\nScript Complete - Exiting")

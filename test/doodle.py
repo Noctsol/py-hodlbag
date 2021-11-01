@@ -48,13 +48,13 @@ def connect():
 #     someword = re.search(i, pretend_string)
 #     print(someword.group(0))
 
-pg = Ezpostgres.from_connection_string(ev.get("postgres_conn_str"))
+# pg = Ezpostgres.from_connection_string(ev.get("postgres_conn_str"))
 
-x = pg.select("SELECT * FROM test_types", formatting=None)
+# x = pg.select("SELECT * FROM test_types", formatting=None)
 
 
-for i in x:
-    print(i)
+# for i in x:
+#     print(i)
 
 
 # formatting =  (None, "dict", "list")
@@ -65,3 +65,15 @@ for i in x:
 #     print("THROW ERROR")
 # else:
 #     print("PASS")
+
+marks = {'Physics':[67,56], 'Maths':[6456,578]}
+
+print(marks.items())
+
+
+cset = set()
+
+cset.add("fuck")
+cset.add("cunt")
+
+print(list(cset))
