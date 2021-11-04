@@ -103,7 +103,7 @@ def backfill_messari_timeseries(crypto_name, messari_metric_id, time_intervals):
     messari_timeseries_data = []
 
     # Executing all api calls and extracting info
-    for start_time, end_time in date_pairs:
+    for start_time, end_time in time_intervals:
         # Making api call
         response = messari.get_asset_timeseries(crypto_name, messari_metric_id, start_time, end_time)
 
@@ -136,7 +136,7 @@ if DEBUG == 1:
 date_pairs = calculate_all_messari_intervals()
 print(date_pairs)
 
-# Back filling OHL
+# Back filling OHLCV
 messari_price_timeseries_data = backfill_messari_timeseries("nano", "price", date_pairs)
 
 for i in messari_price_timeseries_data:
