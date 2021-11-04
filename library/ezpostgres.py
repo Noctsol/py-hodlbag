@@ -37,7 +37,7 @@ class Ezpostgres():
         self.password = password
         self.port = port
         self.auto_connect = auto_connect
-        self.psycopg2_conn = None
+        self.psy_conn = None
 
         if self.auto_connect is True:
             self.connect()
@@ -78,7 +78,7 @@ class Ezpostgres():
             password=self.password
         )
 
-        self.psycopg2_conn = conn
+        self.psy_conn = conn
 
     def select(self, query, formatting="dict"):
 
@@ -87,7 +87,7 @@ class Ezpostgres():
             raise ValueError("'formatting' argment must be None, 'dict', or 'list'")
 
         # Setting up cursor
-        with self.psycopg2_conn as connection:
+        with self.psy_conn as connection:
             with connection.cursor() as cursor:
 
                 # Executing query
@@ -105,11 +105,9 @@ class Ezpostgres():
                 return (headers, results)
 
     def execute(self, query):
-        with self.psycopg2_conn as connection:
+        with self.psy_conn as connection:
             with connection.cursor() as cursor:
                 cursor.execute(query)
-                response = cursor.fetchall()
-                return response
 
 
     def _standardize_value(self, value):
@@ -121,8 +119,8 @@ class Ezpostgres():
         Returns:
             list: Returns a list
         """
-        if type(value) is Decimal:
-                return  float(value)
+        if isinstance(value, Decimal):
+            return  float(value)
 
         return value
 

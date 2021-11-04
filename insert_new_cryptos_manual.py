@@ -1,10 +1,10 @@
 """
 Owner: Noctsol
 Contributors: N/A
-Date Created: 2021-10-30
+Date Created: 2021-11-02
 
 Summary:
-    Inserts new crypto into the asset table, this pulls from coin market cap
+    Manually insert new crypto currencies from a csv file
 
 """
 
@@ -16,18 +16,14 @@ from library import ezpostgres
 import sys
 
 # From Pypi
-import requests
-# import helpu
+import helpu
 import quikenv
+
 
 ############################### CONFIG ###############################
 env = quikenv.ezload()
 
-# API Constants
-APIKEY_CMC = env.get("apikey_coinmarketcap")
-URL_CMC = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
-HEADER_CMC = {"X-CMC_PRO_API_KEY": APIKEY_CMC}
-PARAMS_CMC = {"limit":200}
+UNIQUE_CSV = env.get("unique_cryptos_csv")
 
 # DB info
 DB_STR = env.get("postgres_conn_str")
@@ -40,7 +36,7 @@ already_exists = set()
 
 ############################### CONFIG ###############################
 # Converts the json pull from CMC to an insert string
-def to_insert_string(new_crypto_dicts):
+def to_insert_string(new_crypto_lists):
     """Converts the json pull from CMC to an insert string
 
     Args:
@@ -48,9 +44,9 @@ def to_insert_string(new_crypto_dicts):
     """
     insert_rows = []
 
-    for fdct in new_crypto_dicts:
-        cname = fdct["name"].lower()
-        symbol = fdct["symbol"].lower()
+    for lst in new_crypto_lists:
+        cname = lst[0].lower()
+        symbol = lst[1].lower()
         insert_row_string = f"('{cname}', '{symbol}', 1, 1)"
         insert_rows.append(insert_row_string)
 
@@ -63,19 +59,10 @@ def to_insert_string(new_crypto_dicts):
 
 ############################### BODY ###############################
 
-### GET RECENT LISTINGS FFROM COIN MARKET CAP
+### READ CSV FILE
 
 ### Call API and check response
-response = requests.get(URL_CMC, headers=HEADER_CMC, params=PARAMS_CMC)
-if response.status_code != 200:
-    print(response.json())
-    raise Exception("Please buy me a Splunk license")
-
-#  Convert response body to json
-crypto_listings_json = response.json()["data"]
-
-
-### GET RECENT LISTINGS FROM COIN MARKET CAP
+csv_data = helpu.read_csv(UNIQUE_CSV)[1:]
 
 # Connect to db and pull data
 conn = ezpostgres.Ezpostgres.from_connection_string(DB_STR)
@@ -89,10 +76,10 @@ for dct in existing_cryptos:
 ### COMPARE AND INSERT NEW CRYPTOS
 
 # Getting any new cryptos that have shown up
-for crypto_dct in crypto_listings_json:
-    crypto_name = crypto_dct["name"].lower()
+for row in csv_data:
+    crypto_name = row[0]
     if crypto_name not in already_exists:
-        new_cryptos.append(crypto_dct)
+        new_cryptos.append(row)
 
 # END script if no new items are in
 if len(new_cryptos) == 0:

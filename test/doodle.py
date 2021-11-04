@@ -66,14 +66,53 @@ def connect():
 # else:
 #     print("PASS")
 
-marks = {'Physics':[67,56], 'Maths':[6456,578]}
+shit = r"https://www.thefreedictionary.com/specifier#:~:text=Noun-,1.,WordNet%203.0%2C%20Farlex%20clipart%20collection."
 
-print(marks.items())
+print(len(shit))
 
+env = quikenv.ezload()
+cmc_key = env.get("apikey_coinmarketcap")
 
-cset = set()
+url_coinmarketcap = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
 
-cset.add("fuck")
-cset.add("cunt")
+headers = {
+    "X-CMC_PRO_API_KEY": cmc_key
+}
 
-print(list(cset))
+metric_params = {
+    "page1": "1",
+    "limit": "500",
+    "with-metrics": True
+}
+
+profile_params = {
+    "page": "1",
+    "limit": "500",
+    "with-profiles": True
+}
+
+metricprofile_params = {
+    "page": "1",
+    "limit": "500",
+    "with-metrics": "any",
+    "with-profiles": "any"
+}
+url = "https://data.messari.io/api/v2/assets"
+
+# resp_metrics = requests.get(url, headers=headers, params=metric_params)
+# resp_profile = requests.get(url, headers=headers, params=metric_params)
+resp_both = requests.get(url, headers=headers, params=metricprofile_params)
+print(resp_both.request.url)
+
+def print_info(response):
+    data = response.json()["data"]
+    print(f"Total Assets: {len(data)}")
+    for dct in data:
+        print(dct["name"])
+
+# print_info(resp_metrics)
+# print("\n")
+# print_info(resp_profile)
+# print("\n")
+print_info(resp_both)
+print("\n")

@@ -1,6 +1,8 @@
 /*
 
     Master script for generating DB
+    - Generate at will
+
 
     is_capped_supply =  ["consensus_and_emission"]["supply"]["is_capped_supply"]
     max_supply = ["consensus_and_emission"]["supply"]["max_supply"]
@@ -17,6 +19,8 @@
 */
 /* ########################### DROP sequence ########################### */
 
+
+DROP TRIGGER IF EXISTS updated_at_stamp_historical_status ON historical_status;
 DROP TRIGGER IF EXISTS updated_at_stamp_crypto_status ON crypto_status;
 DROP TRIGGER IF EXISTS updated_at_stamp_category ON category;
 DROP TRIGGER IF EXISTS updated_at_stamp_crypto ON crypto;
@@ -28,6 +32,7 @@ DROP TRIGGER IF EXISTS updated_at_stamp_crypto_profile ON crypto_profile;
 DROP TABLE IF EXISTS crypto_profile;
 DROP TABLE IF EXISTS crypto_to_tag;
 DROP TABLE IF EXISTS historical;
+DROP TABLE IF EXISTS historical_status;
 DROP TABLE IF EXISTS crypto;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS crypto_status;
@@ -35,6 +40,7 @@ DROP TABLE IF EXISTS tag;
 
 DROP FUNCTION IF EXISTS trg_updated_at();
 DROP FUNCTION IF EXISTS now_utc();
+
 
 /* ########################### FUNCTIONS ########################### */
 
@@ -100,9 +106,9 @@ CREATE TABLE IF NOT EXISTS crypto (
     crypto_name varchar(50) UNIQUE NOT NULL,
     alternate_name varchar(50),
     symbol varchar(10) NOT NULL,
-    category_id integer REFERENCES category(category_id),
     details varchar(250) NULL,
-    worked_at TIMESTAMP NULL,
+    category_id integer NOT NULL REFERENCES category(category_id),
+    crypto_status_id INTEGER NOT NULL REFERENCES crypto_status(crypto_status_id),
     created_at TIMESTAMP DEFAULT NOW_UTC() NOT NULL,
     updated_at TIMESTAMP NULL
 );
@@ -110,14 +116,39 @@ CREATE TABLE IF NOT EXISTS crypto (
 CREATE TRIGGER updated_at_stamp_crypto BEFORE UPDATE ON crypto
     FOR EACH ROW EXECUTE FUNCTION trg_updated_at();
 -- Insert some data
-INSERT INTO crypto(crypto_name, alternate_name, symbol, category_id, details) 
+INSERT INTO crypto(crypto_name, alternate_name, symbol, details, category_id, crypto_status_id) 
 VALUES
-    ('cryptocap10', 'top 10 cryptos', 'ccap10', 2, 'Composite tracker made of the top 10 crytocurrencies'),
-    ('cryptocap20', 'top 20 cryptos', 'ccap20', 2, 'Composite tracker made of the top 20 crytocurrencies'),
-    ('cryptocap30', 'top 30 cryptos', 'ccap30', 2, 'Composite tracker made of the top 30 crytocurrencies'),
-    ('cryptocap50', 'top 50 cryptos', 'ccap50', 2, 'Composite tracker made of the top 50 crytocurrencies'),
-    ('cryptocap100', 'top 100 cryptos', 'ccap100', 2, 'Composite tracker made of the top 100 crytocurrencies'),
-    ('cryptocap200', 'top 200 cryptos', 'ccap200', 2, 'Composite tracker made of the top 200 crytocurrencies');
+    ('bitcoin', 'digitalgold', 'btc', 'The grandaddy of them all. Please stop betting against it and hurting yourself.', 1, 1),
+    ('ethereum', 'memecontracts', 'eth', 'Made by Satoshi Nakamoto''s son, Vitalik Buterin.', 1, 1),
+    ('cardano', 'peerreviewedlul', 'ada', 'Made by Vitalik''s jealous cousin. "Can we stop talking about Ethereum?" - Charles Hoskinson.', 1, 1),
+    ('polkadot', 'connect4', 'dot', 'Ethereum''s cool cousin that decided to do something different.', 1, 1),
+    ('nano', 'prodigalgrandson', 'nano', 'If bitcoin had a son to carry the family legacy, nano would be it. Fast and feeless(I know, I know).', 1, 1),
+    ('cryptocap10', 'top 10 cryptos', 'ccap10', 'Composite tracker made of the top 10 crytocurrencies', 2, 1),
+    ('cryptocap20', 'top 20 cryptos', 'ccap20', 'Composite tracker made of the top 20 crytocurrencies', 2, 1),
+    ('cryptocap30', 'top 30 cryptos', 'ccap30', 'Composite tracker made of the top 30 crytocurrencies', 2, 1),
+    ('cryptocap50', 'top 50 cryptos', 'ccap50', 'Composite tracker made of the top 50 crytocurrencies', 2, 1),
+    ('cryptocap100', 'top 100 cryptos', 'ccap100', 'Composite tracker made of the top 100 crytocurrencies', 2, 1),
+    ('cryptocap200', 'top 200 cryptos', 'ccap200', 'Composite tracker made of the top 200 crytocurrencies', 2, 1);
+
+
+/* ###### HISTORICAL ###### */
+-- Create Table
+CREATE TABLE historical_status(
+    historical_status_id SERIAL PRIMARY KEY NOT NULL,
+    historical_status_name VARCHAR(15) NOT NULL,
+    long_description VARCHAR(250) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW_UTC() NOT NULL,
+    updated_at TIMESTAMP NULL
+);
+-- Trigger
+CREATE TRIGGER updated_at_stamp_historical_status BEFORE UPDATE ON historical_status
+    FOR EACH ROW EXECUTE FUNCTION trg_updated_at();
+-- insert
+INSERT INTO historical_status(historical_status_name, long_description)
+VALUES
+    ('closed', 'All data was retrieved and no more work is required'),
+    ('incomplete', 'Data was found but is not final or completed'),
+    ('nodata', 'After multiple attempts, no data was retrievable for this item. Chances are there was an outage or no trading activity.');
 
 
 /* ###### HISTORICAL ###### */
@@ -131,7 +162,6 @@ CREATE TABLE IF NOT EXISTS historical (
     close_price DECIMAL NOT NULL,
     circulating_supply DECIMAL NOT NULL,
     oustanding_marketcap DECIMAL NOT NULL,
-    worked_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT NOW_UTC() NOT NULL,
     updated_at TIMESTAMP NULL
 );

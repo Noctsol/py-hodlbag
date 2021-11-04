@@ -148,14 +148,18 @@ def generate_unique_crypto_file(all_combined_data):
     for row in all_combined_data[1:]:
         name = row[2].lower()
         symbol = row[3].lower()
-        pair = (name, symbol)
 
-        if pair not in dict_set:
-            dict_set[pair] = 1
+        if name not in dict_set:
+            dict_set[name] = symbol
         else:
-            continue
+            # Here to deal with cases where the acronym changes
+            # We take the most recent acronym
+            if name in dict_set and symbol != dict_set[name]:
+                dict_set[name] = symbol
+            else:
+                continue
 
-    unique_pairs = [list(i) for i in dict_set]
+    unique_pairs = [[i, dict_set[i]] for i in dict_set]
 
     headers = ["name", "symbol"]
     output = [headers] + unique_pairs
