@@ -4,10 +4,10 @@ SELECT
     cry.alternate_name AS "alt_name",
     cry.symbol,
     cry.details,
-    cat.category_name,
-    cs.crypto_status_name,
+    ccat.ccategory_name,
+    csta.cstatus_name,
     cry.created_at,
     cry.updated_at
 FROM crypto AS cry
-    INNER JOIN crypto_status AS cs ON cs.crypto_status_id = cry.crypto_status_id
-    INNER JOIN category AS cat ON cat.category_id = cry.category_id
+    INNER JOIN cstatus AS csta ON csta.cstatus_id = cry.cstatus_id
+    INNER JOIN ccategory AS ccat ON ccat.ccategory_id = cry.ccategory_id

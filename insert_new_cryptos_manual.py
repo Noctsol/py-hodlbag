@@ -27,7 +27,7 @@ UNIQUE_CSV = env.get("unique_cryptos_csv")
 
 # DB info
 DB_STR = env.get("postgres_conn_str")
-CRYPTO_QUERY = "SELECT crypto_name FROM crypto AS cry WHERE cry.category_id = 1"
+CRYPTO_QUERY = "SELECT crypto_name FROM crypto AS cry WHERE cry.ccategory_id = 1"
 
 # Will hold any net new cryptos not in DB
 new_cryptos = []
@@ -47,12 +47,12 @@ def to_insert_string(new_crypto_lists):
     for lst in new_crypto_lists:
         cname = lst[0].lower()
         symbol = lst[1].lower()
-        insert_row_string = f"('{cname}', '{symbol}', 1, 1)"
+        insert_row_string = f"('{cname}', '{symbol}', 1, 1, '{{\"https://coinmarketcap.com/\"}}')"
         insert_rows.append(insert_row_string)
 
     insert_rows_string = ",".join(insert_rows)
 
-    generated_insert_statement = ("INSERT INTO crypto(crypto_name, symbol, category_id, crypto_status_id)"
+    generated_insert_statement = ("INSERT INTO crypto(crypto_name, symbol, ccategory_id, cstatus_id, sources)"
         f"\nVALUES\n{insert_rows_string};")
 
     return generated_insert_statement
@@ -94,11 +94,11 @@ insert_statement = to_insert_string(new_cryptos)
 
 # Inserting new records
 try:
-    new_cursor = conn.psy_conn.cursor()
+    new_cursor = conn.dbconn.cursor()
     new_cursor.execute(insert_statement)
-    conn.psy_conn.commit()
+    conn.dbconn.commit()
 finally:
     new_cursor.close()
-    conn.psy_conn.close()
+    conn.dbconn.close()
 
 print("END - Script complete")

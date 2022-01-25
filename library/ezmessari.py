@@ -8,19 +8,12 @@ Summary:
 """
 
 # Preinstalled packages
-from datetime import datetime, time, timedelta
-import os
-import sys
-
+from datetime import datetime
 
 # From Pypi
-import helpu as hlp
-import quikenv as qi
 import requests
-from requests.models import Response
 
 # From Project
-from library import ezpostgres as pg
 
 
 class EzMessari:
@@ -38,6 +31,7 @@ class EzMessari:
 
     ###################################### PUBLIC ######################################
 
+    ################ TIME SERIES ################
     def get_asset_timeseries(
         self,
         asset_key,
@@ -128,7 +122,7 @@ class EzMessari:
         """Extracts the data from timeseries json into a simple dict
 
         Args:
-            timeseries_json (str): Json from the Messari timeeseries method
+            timeseries_response (str): Response from the Messari timeseries method
 
         Returns:
             list: A list containing flat dictionaries
@@ -148,8 +142,46 @@ class EzMessari:
         return [dict(zip(columns, lst)) for lst in values]
 
 
+    ################ ASSET/PROFILE/METRICS ################
+
+    def get_asset_profile(self, asset_key):
+        """Get all of the qualitative information for an asset.
+
+        Args:
+            asset_key (str): This "key" can be the asset's ID (unique), slug (unique), or symbol (non-unique)
+
+        Returns:
+            object: a python requests object
+        """
+        path = f"/api/v2/assets/{asset_key}/profile"
+        return self._get(path, parameters=None)
 
 
+    def extract_profile(self, profile_response):
+        """Extracts very specific information from a coins profile
+
+        Args:
+            profile_response (str): Response from the Messari get profile method
+
+        Returns:
+            dict: flat dict
+        """
+        profile_json = profile_response.json()["data"]
+
+        is_capped_supply =  profile_json["economics"]["consensus_and_emission"]["supply"]["is_capped_supply"]
+        max_supply = profile_json["economics"]["consensus_and_emission"]["supply"]["max_supply"]
+
+        genesis_block_date = profile_json["economics"]["launch"]["initial_distribution"]["genesis_block_date "]
+        token_distribution_date = profile_json["economics"]["launch"]["initial_distribution"]["token_distribution_date"]
+
+        profile_dict = {
+            "is_capped_supply": is_capped_supply,
+            "max_supply": max_supply,
+            "genesis_block_date": genesis_block_date,
+            "token_distribution_date": token_distribution_date
+        }
+
+        return profile_dict
 
 
 

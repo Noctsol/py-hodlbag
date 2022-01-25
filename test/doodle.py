@@ -1,118 +1,59 @@
 
+# x = ["A", "b", "c"]
 
-import sys
+# length = len(x)
+# counter = 0
+# while counter < length:
 
-sys.path.append('.')
+#     print(counter)
 
-from library.ezpostgres import Ezpostgres
+#     counter+=1
 
-import psycopg2
-import quikenv
-import re
+# test_cases = [
+#     [["y","B"],1, "test"],
+#     ["https://cheese.com", "https://allurinfoismine.com"],
+#     [[["y",["nested", "stuff"]]], 1, "test"],
+#     [[1,2], ["my", "dog"], ["is","supercute"]]
+# ]
 
+# import datetime
+# def convert(lst):
+#     postgres_insert_strings = []
 
-ev = quikenv.ezload()
+#     for i in lst:
+#         new_value = i
 
+#         if isinstance(i, list):
+#             new_value = convert(i)
+#         elif isinstance(i, str):
+#             new_value = f"\"{i}\""
+#         elif isinstance(i, datetime.datetime):
+#             new_value = i.strftime("timestamp '%Y-%m-%d %H:%M:%S'")
+#         elif isinstance(i, int):
+#             new_value = str(i)
+#         elif isinstance(i, float):
+#             new_value = str(i)
 
-def connect():
-    """ Connect to the PostgreSQL database server """
-    conn = None
-    ev.get("postgres_conn_str")
-    # connect to the PostgreSQL server
-    print('Connecting to the PostgreSQL database...')
-    # conn = psycopg2.connect(
-    #     host=ev.get("local_pg_host"),
-    #     port=ev.get("local_pg_port"),
-    #     # dbname=ev.get("local_pg_db"),
-    #     dbname="postgres",
-    #     user=ev.get("local_pg_user"),
-    #     password=ev.get("local_pg_pass")
-    # )
+#         postgres_insert_strings.append(new_value)
 
-    conn = psycopg2.connect(ev.get("postgres_conn_str"))
+#     joined = ",".join(postgres_insert_strings)
+#     pg_string = f"{{{joined}}}"
 
+#     return pg_string
 
+# for i in test_cases:
+#     print(convert(i))
 
-# pretend_string = "postgres://noctsol1:some password@ez.mode.db:5432/some_db"
+import datetime
 
-# # Yes, I wrote the regex for all of this
-# user_regex = r"(?<=\/\/)[\w\d._]+(?=:)"
-# pw_regex = r"""(?<=:)[\w\s\d!"#$%&'()*+,-.;<=>?@\]\[^_`{|}~]+(?=@)"""
-# host_regex = r"(?<=@)[\w\d\-.]+(?=:)"
-# port_regex = r"(?<=:)[\d]+(?=\/)"
-# db_regex = r"(?<=\/)[\w_]+$"
-
-# [user_regex, pw_regex, host_regex, port_regex, db_regex]
-
-# for i in [user_regex, pw_regex, host_regex, port_regex, db_regex]:
-#     someword = re.search(i, pretend_string)
-#     print(someword.group(0))
-
-# pg = Ezpostgres.from_connection_string(ev.get("postgres_conn_str"))
-
-# x = pg.select("SELECT * FROM test_types", formatting=None)
+def months(d1, d2):
+    return d1.month - d2.month + 12*(d1.year - d2.year)
 
 
-# for i in x:
-#     print(i)
+cos = datetime.datetime(1966, 4, 30)
 
+ts = datetime.datetime(2021, 11, 5)
 
-# formatting =  (None, "dict", "list")
+delta = ts - cos
 
-# formatting = "nONE"
-
-# if formatting is not None and formatting != "dict" and formatting != "list":
-#     print("THROW ERROR")
-# else:
-#     print("PASS")
-
-shit = r"https://www.thefreedictionary.com/specifier#:~:text=Noun-,1.,WordNet%203.0%2C%20Farlex%20clipart%20collection."
-
-print(len(shit))
-
-env = quikenv.ezload()
-cmc_key = env.get("apikey_coinmarketcap")
-
-url_coinmarketcap = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
-
-headers = {
-    "X-CMC_PRO_API_KEY": cmc_key
-}
-
-metric_params = {
-    "page1": "1",
-    "limit": "500",
-    "with-metrics": True
-}
-
-profile_params = {
-    "page": "1",
-    "limit": "500",
-    "with-profiles": True
-}
-
-metricprofile_params = {
-    "page": "1",
-    "limit": "500",
-    "with-metrics": "any",
-    "with-profiles": "any"
-}
-url = "https://data.messari.io/api/v2/assets"
-
-# resp_metrics = requests.get(url, headers=headers, params=metric_params)
-# resp_profile = requests.get(url, headers=headers, params=metric_params)
-resp_both = requests.get(url, headers=headers, params=metricprofile_params)
-print(resp_both.request.url)
-
-def print_info(response):
-    data = response.json()["data"]
-    print(f"Total Assets: {len(data)}")
-    for dct in data:
-        print(dct["name"])
-
-# print_info(resp_metrics)
-# print("\n")
-# print_info(resp_profile)
-# print("\n")
-print_info(resp_both)
-print("\n")
+print(months(ts, cos))

@@ -37,7 +37,7 @@ class Ezpostgres():
         self.password = password
         self.port = port
         self.auto_connect = auto_connect
-        self.psy_conn = None
+        self.dbconn = None
 
         if self.auto_connect is True:
             self.connect()
@@ -70,6 +70,8 @@ class Ezpostgres():
         return cls(info[0], info[1], info[2], info[3], port=info[4] ,auto_connect=auto_connect)
 
     def connect(self):
+        """Connects to the database
+        """
         conn = psycopg2.connect(
             host=self.host,
             port=self.port,
@@ -78,16 +80,17 @@ class Ezpostgres():
             password=self.password
         )
 
-        self.psy_conn = conn
+        self.dbconn = conn
 
     def select(self, query, formatting="dict"):
+        """ Runs a select query and returns the result in various different formats"""
 
         # Sanity check for optional param
         if formatting is not None and formatting != "dict" and formatting != "list":
             raise ValueError("'formatting' argment must be None, 'dict', or 'list'")
 
         # Setting up cursor
-        with self.psy_conn as connection:
+        with self.dbconn as connection:
             with connection.cursor() as cursor:
 
                 # Executing query
@@ -97,17 +100,13 @@ class Ezpostgres():
                 headers = cursor.description
                 results = cursor.fetchall()
 
+                # Formatting results
                 if formatting == "dict":
                     return self._to_listdict(headers, results)
                 elif formatting == "list":
                     return self._to_listlist(headers, results)
 
                 return (headers, results)
-
-    def execute(self, query):
-        with self.psy_conn as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(query)
 
 
     def _standardize_value(self, value):
